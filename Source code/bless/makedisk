@@ -1,0 +1,28 @@
+#!/bin/sh
+
+if test -n "$1"
+then
+    echo "Blessing $1"
+    if test -n "$2"
+    then
+        ./blessdisk $1 $2
+    else
+        ./blessdisk $1
+    fi
+    echo "Signing blessings"
+    if test -n "$3"
+    then
+        gpg -b --digest-algo md5 --default-key "$3" "$1.bless"
+    else
+        gpg -b --digest-algo md5 "$1.bless"
+    fi
+    echo "Creating $1.blessings"
+    cat "$1.bless" "$1.bless.sig" > "$1.blessings"
+#    echo "Padding $1.blessings"
+#    ./padapp "$1.blessings"
+#    cat "$1.blessings.padded" $1 > "$1.app"
+    cat "$1.blessings" $1 > "$1.app"
+    rm "$1.blessings" "$1.bless" "$1.bless.sig"
+else
+    echo "Usage: $0 app [app-type] [key-name]"
+fi
